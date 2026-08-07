@@ -82,10 +82,18 @@
     .line-clamp-1 { -webkit-line-clamp: 1; }
     .line-clamp-2 { -webkit-line-clamp: 2; }
     .line-clamp-3 { -webkit-line-clamp: 3; }
+    /* Khung ứng dụng CỐ ĐỊNH đúng viewport, không cho trang tự cuộn:
+       html/body chốt đúng 100vh/100vw, overflow:hidden chặn thanh cuộn
+       trình duyệt tuyệt đối. Cuộn chỉ còn xảy ra ở các khối con có khai
+       overflow-y-auto riêng (sidebar, panel Kanban, lưới Canvas...). */
+    html, body {
+      height: 100vh; width: 100vw;
+      margin: 0; padding: 0;
+      overflow: hidden;
+    }
     body {
       font-family: var(--ff-body);
       line-height: 1.62;
-      margin: 0; padding: 0;
     }
     .ff-display {
       font-family: var(--ff-display);
@@ -196,24 +204,24 @@
 
     /* Chỗ chờ nối API — hiện mới chỉ bắn toast */
     const AI_TRIGGERS = [
-      { id: "breakdown", icon: "🪄", name: { vi: "Chia nhỏ việc này", en: "Break this down" } },
-      { id: "schedule",  icon: "⚡", name: { vi: "Tìm giờ trống giúp tôi", en: "Find me a slot" } },
-      { id: "ideas",     icon: "💡", name: { vi: "Gợi ý cách làm", en: "Suggest an approach" } },
+      { id: "breakdown", icon: "🪄", name: { vi: "Chia nhỏ công việc", en: "Break this down" } },
+      { id: "schedule",  icon: "⚡", name: { vi: "Gợi ý giờ rảnh", en: "Find me a slot" } },
+      { id: "ideas",     icon: "💡", name: { vi: "Gợi ý hướng triển khai", en: "Suggest an approach" } },
     ];
 
     const AI_MODULES = [
       { id: "fitness", icon: "💪", name: { vi: "Huấn luyện viên", en: "Fitness AI" },
-        desc: { vi: "Giúp bạn biến mục tiêu tập luyện thành lịch tập rải đều cả tuần.", en: "Helps you turn training goals into sessions across the week." } },
+        desc: { vi: "Chuyển đổi mục tiêu thành lịch tập rải đều cả tuần.", en: "Helps you turn training goals into sessions across the week." } },
       { id: "study", icon: "📚", name: { vi: "Gia sư riêng", en: "Study Assistant" },
-        desc: { vi: "Hướng dẫn bạn chia đề cương thành bài học vừa sức cho từng ngày.", en: "Guides you through splitting a syllabus into daily lessons." } },
+        desc: { vi: "Giúp bạn chia nhỏ đề cương thành các bài học vừa sức mỗi ngày.", en: "Guides you through splitting a syllabus into daily lessons." } },
       { id: "meals", icon: "🍽️", name: { vi: "Bếp trưởng", en: "Meal Planner" },
-        desc: { vi: "Giúp bạn lên thực đơn cả tuần và biết cần đi chợ mua những gì.", en: "Helps you plan the week’s meals and know what to shop for." } },
+        desc: { vi: "Lên thực đơn tuần và tự động tạo danh sách đi chợ.", en: "Helps you plan the week’s meals and know what to shop for." } },
       { id: "focus", icon: "⏱️", name: { vi: "Giữ tập trung", en: "Focus Coach" },
-        desc: { vi: "Hỗ trợ bạn chọn khung giờ làm việc sâu dựa trên lượng việc đang có.", en: "Supports you in picking deep-work blocks based on your task load." } },
-      { id: "journal", icon: "✍️", name: { vi: "Nhìn lại tuần", en: "Journal Insights" },
-        desc: { vi: "Giúp bạn nhìn lại các tuần đã qua và nhận ra mình hay lặp lại điều gì.", en: "Helps you look back at past weeks and spot repeating patterns." } },
+        desc: { vi: "Gợi ý các khung giờ làm việc tập trung dựa trên khối lượng công việc.", en: "Supports you in picking deep-work blocks based on your task load." } },
+      { id: "journal", icon: "✍️", name: { vi: "Tổng kết tuần", en: "Journal Insights" },
+        desc: { vi: "Phân tích các tuần đã qua để tìm ra thói quen và xu hướng của bạn.", en: "Helps you look back at past weeks and spot repeating patterns." } },
       { id: "auto", icon: "🤖", name: { vi: "Xếp lịch tự động", en: "Auto-Scheduler" },
-        desc: { vi: "Hỗ trợ bạn rải việc vào những ngày còn trống trong tuần.", en: "Supports you by spreading tasks across the days you have free." } },
+        desc: { vi: "Tự động phân bổ công việc vào các khoảng thời gian trống trong tuần.", en: "Supports you by spreading tasks across the days you have free." } },
     ];
 
     const STR = {
@@ -273,57 +281,57 @@
       },
       vi: {
         kanban: "Kanban", ai: "Trợ lý AI", signup: "Đăng ký",
-        endWeek: "Chốt tuần", archiveReset: "Cất tuần này lại", thisWeek: "Tuần này",
-        projects: "Dự án", addProject: "Thêm dự án", projectName: "Dự án này tên gì?",
-        create: "Xong", cancel: "Thôi", addTask: "+ thêm việc",
-        copyPlan: "Chép", pastePlan: "Dán",
+        endWeek: "Chốt tuần", archiveReset: "Đóng sổ & Lưu trữ", thisWeek: "Tuần này",
+        projects: "Dự án", addProject: "Thêm dự án", projectName: "Nhập tên dự án...",
+        create: "Tạo", cancel: "Hủy", addTask: "+ thêm công việc",
+        copyPlan: "Sao chép", pastePlan: "Dán",
         greetM: "Chào buổi sáng", greetA: "Chào buổi chiều", greetE: "Chào buổi tối",
-        weekSub: "Xong việc nào thì tick việc đó. Bấm vào ngày để rải việc ra cả tuần.",
-        noTasks: "Chưa có việc nào cả. Thêm ở cột Dự án bên trái.",
-        welcomeSub: "Mình lên kế hoạch cho tuần này nào.",
-        s1t: "Tạo một dự án", s1d: "Dự án là một nhóm việc đi cùng nhau. Tạo ở cột bên trái.",
-        s2t: "Thêm việc vào", s2d: "Mỗi việc có một ô tick. Tick xong là tiến độ tự nhích lên.", s2ex: "ví dụ: Viết trang giới thiệu",
-        s3t: "Chọn ngày làm", s3d: "Bấm vào ngày bạn định làm việc đó. Ngày đã chọn sẽ có chấm nhỏ bên dưới:",
-        firstProject: "Tạo dự án đầu tiên nào",
-        tasksPanel: "Việc chờ xếp", backlog: "Chưa xếp",
-        backlogEmpty: "Việc bạn thêm bên tab Planner sẽ tự nhảy vào đây.",
-        dragHint: "Kéo thẻ việc thả vào cột. Dùng điện thoại thì bấm ô chọn nhỏ trên mỗi thẻ.",
-        dropHere: "Thả vào đây", statusShare: "Phân bổ công việc", tasksWord: "việc",
-        settings: "Cài đặt", sound: "Âm thanh", themeL: "Giao diện", languageL: "Ngôn ngữ", more: "Khác",
-        stats: "Thống kê", archive: "Đã cất",
-        savedLocally: "Đã lưu", saving: "Đang lưu…",
-        weekCompletion: "Tuần này xong", tasksPlanned: "Tổng số việc",
-        weeksArchived: "Tuần đã cất", loadPerDay: "Việc mỗi ngày", busiest: "Ngày bận nhất",
-        statsEmpty: "Xếp vài việc vào ngày cụ thể là biểu đồ hiện ra ngay.", of: "trên", doneWord: "xong",
-        archiveEmpty: "Chưa cất tuần nào. Bấm Chốt tuần là tuần hiện tại vào đây.", ended: "chốt ngày",
-        aiSub: "Tích hợp thêm AI vào planner, kết quả trả về đưa thẳng được vào kế hoạch tuần.",
-        notConnected: "Chưa hoạt động", connect: "Bật lên →", aiTools: "Trợ lý",
-        donateT: "Dùng ARVIS thấy ổn không?", donateD: "Quét mã mời mình một ly cà phê. (Nhớ thay ảnh QR thật ở QR_IMAGE_URL.)",
-        tCopied: "Chép rồi. Dán sang tuần nào cũng được.", tPasted: "Dán xong, kế hoạch nằm ngay bên dưới.",
-        tNoCopy: "Chưa có gì để chép. Tạo một dự án đã.", tNoPaste: "Chưa có gì để dán. Chép một kế hoạch đã.",
-        tArchived: "Cất tuần cũ xong. Bắt đầu tuần mới thôi!", tNoArchive: "Chưa có gì để cất cả.",
-        tSignup: "Tài khoản để sau. Giờ dữ liệu vẫn nằm gọn trong máy bạn.",
-        tToolTgl: "Đây mới là nút demo thôi. Sau này chỗ này sẽ là nơi thanh toán.",
-        tModule: "Thẻ này chưa nối gì đâu. Cắm API vào là dùng được ngay.",
+        weekSub: "Đánh dấu khi hoàn thành và kéo thả vào ngày để lên lịch cho cả tuần.",
+        noTasks: "Chưa có công việc nào — hãy thêm ở cột Dự án nhé.",
+        welcomeSub: "Cùng lên kế hoạch cho tuần này nào.",
+        s1t: "Tạo một dự án", s1d: "Dự án giúp nhóm các công việc liên quan lại với nhau. Tạo ở cột bên trái.",
+        s2t: "Thêm công việc", s2d: "Mỗi công việc đi kèm một checkbox để theo dõi tiến độ.", s2ex: "VD: Viết nội dung trang chủ",
+        s3t: "Lên lịch thực hiện", s3d: "Chọn những ngày bạn muốn làm công việc đó — mỗi ngày được chọn sẽ có một chấm nhỏ:",
+        firstProject: "Tạo dự án đầu tiên",
+        tasksPanel: "Công việc", backlog: "Chờ xử lý",
+        backlogEmpty: "Các công việc mới tạo sẽ xuất hiện ở đây.",
+        dragHint: "Kéo thẻ công việc thả vào cột — hoặc dùng nút chọn trên từng thẻ.",
+        dropHere: "Kéo thả vào đây", statusShare: "Phân bổ công việc", tasksWord: "công việc",
+        settings: "Cài đặt", sound: "Âm thanh", themeL: "Giao diện", languageL: "Ngôn ngữ", more: "Thêm",
+        stats: "Thống kê", archive: "Lưu trữ",
+        savedLocally: "Đã lưu trên máy", saving: "Đang lưu…",
+        weekCompletion: "Mức độ hoàn thành", tasksPlanned: "Số việc đã lên lịch",
+        weeksArchived: "Số tuần đã lưu", loadPerDay: "Khối lượng mỗi ngày", busiest: "Ngày bận nhất",
+        statsEmpty: "Hãy xếp lịch cho các công việc để xem biểu đồ nhé.", of: "trong số", doneWord: "hoàn thành",
+        archiveEmpty: "Chưa có dữ liệu. Bấm 'Chốt tuần' để lưu lại tuần hiện tại vào đây.", ended: "kết thúc lúc",
+        aiSub: "Tích hợp AI vào Planner — mọi kết quả gợi ý sẽ được đưa thẳng vào lịch trình của bạn.",
+        notConnected: "Chưa kết nối", connect: "Kết nối →", aiTools: "Công cụ AI",
+        donateT: "Bạn thích ARVIS chứ?", donateD: "Quét mã để mời mình một ly cà phê nhé.",
+        tCopied: "Đã sao chép kế hoạch. Bạn có thể dán vào bất kỳ tuần nào.", tPasted: "Đã dán kế hoạch ngay bên dưới dự án của bạn.",
+        tNoCopy: "Chưa có gì để sao chép — hãy tạo dự án trước.", tNoPaste: "Chưa có gì để dán — hãy sao chép một kế hoạch trước.",
+        tArchived: "Đã lưu trữ tuần cũ. Sẵn sàng cho một tuần mới!", tNoArchive: "Chưa có gì để lưu trữ.",
+        tSignup: "Tính năng tài khoản sẽ có sau — hiện tại dữ liệu được lưu an toàn trên máy bạn.",
+        tToolTgl: "Đây chỉ là nút demo — sau này sẽ liên kết với thanh toán.",
+        tModule: "Mô-đun đang chờ xử lý — sẽ hoạt động ngay khi kết nối API.",
         kanbanTab: "Kanban", canvasTab: "Canvas",
-        inbox: "Hộp việc", inboxEmpty: "Xếp hết rồi. Việc mới thêm sẽ rơi vào đây trước.",
-        kanbanHint: "Kéo từ Hộp việc thả vào cột. Bấm vào thẻ để mở chi tiết.",
-        canvasHint: "Kéo một việc từ Hộp việc thả vào ngày bạn định làm.",
-        moveTo: "Chuyển sang…", backToInbox: "Trả về Hộp việc", clearDay: "Bỏ khỏi ngày này",
-        hidePanel: "Thu gọn cột nhập liệu", showPanel: "Mở lại cột nhập liệu",
-        openAi: "Trợ lý", close: "Đóng", backToBoard: "Quay lại bảng làm việc",
-        timeTitle: "Khối thời gian", startAt: "Bắt đầu lúc", durationL: "Thời lượng", minutes: "phút",
-        markDone: "Đánh dấu xong", detailsTitle: "Chi tiết công việc", wordsWord: "từ",
-        notePh: "Ghi chú, đường link, thế nào thì coi là xong…",
-        timetableEmpty: "Chưa xếp giờ cho việc nào. Kéo một việc từ Hộp việc thả vào khung giờ.",
-        timetableHint: "Thả việc vào khung giờ, rồi bấm vào để chỉnh giờ, màu và ghi chú.",
-        board: "Bảng", colorCode: "Mã màu", colorReset: "bỏ màu", daysL: "Ngày làm",
-        notesL: "Ghi chú", deleteTask: "Xoá việc này", aiTriggers: "AI",
-        tAiTrigger: "Nút này chưa nối gì. Cắm API vào là nó gọi được trợ lý.",
-        colorLabels: "Phân loại màu sắc", colorLabelsHint: "Đặt tên cho từng màu để nó có nghĩa với bạn.",
-        slotOf: "Buổi", slotsL: "Các buổi trên lịch", noSlots: "Chưa đặt lên lịch buổi nào.",
-        addSlot: "Đặt vào ngày", deleteSlot: "Bỏ buổi này khỏi lịch", taskWide: "Áp cho cả việc",
-        slotWide: "Chỉ áp cho buổi này"
+        inbox: "Inbox", inboxEmpty: "Đã xử lý xong. Các công việc mới sẽ xuất hiện ở đây đầu tiên.",
+        kanbanHint: "Kéo từ Inbox thả vào các cột. Nhấn vào thẻ để xem chi tiết.",
+        canvasHint: "Kéo công việc từ Inbox và thả vào ngày bạn muốn.",
+        moveTo: "Chuyển sang…", backToInbox: "Đưa lại vào Inbox", clearDay: "Xóa khỏi ngày này",
+        hidePanel: "Ẩn thanh nhập liệu", showPanel: "Hiện thanh nhập liệu",
+        openAi: "Công cụ AI", close: "Đóng", backToBoard: "Quay lại bảng",
+        timeTitle: "Khung thời gian", startAt: "Bắt đầu lúc", durationL: "Thời lượng", minutes: "phút",
+        markDone: "Đánh dấu hoàn thành", detailsTitle: "Chi tiết công việc", wordsWord: "từ",
+        notePh: "Ghi chú, link đính kèm, tiêu chí hoàn thành…",
+        timetableEmpty: "Chưa có lịch trình — kéo một công việc từ Inbox và thả vào khung giờ.",
+        timetableHint: "Thả công việc vào khung giờ, sau đó nhấn vào để chỉnh sửa giờ, màu sắc và ghi chú.",
+        board: "Bảng", colorCode: "Màu phân loại", colorReset: "xóa màu", daysL: "Ngày thực hiện",
+        notesL: "Ghi chú", deleteTask: "Xoá công việc này", aiTriggers: "AI",
+        tAiTrigger: "Nút này đang chờ xử lý — sẽ gọi AI sau khi kết nối API.",
+        colorLabels: "Nhãn màu", colorLabelsHint: "Đặt tên cho từng màu sắc theo ý muốn của bạn.",
+        slotOf: "Khung giờ", slotsL: "Các khung giờ trên lịch", noSlots: "Chưa được xếp vào lịch.",
+        addSlot: "Thêm vào ngày", deleteSlot: "Xóa khung giờ này", taskWide: "Áp dụng toàn bộ",
+        slotWide: "Chỉ áp dụng khung giờ này"
       },
     };
 
@@ -1192,47 +1200,56 @@
       });
 
       return (
-        <div className="flex flex-col-reverse xl:flex-row gap-4 items-start">
-          <div className="flex-1 min-w-0 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3">
+        <div className="h-full flex flex-col-reverse xl:flex-row gap-4 items-stretch">
+          {/* 5 cột nằm CÙNG MỘT HÀNG (không còn tự xuống dòng theo grid-cols
+             responsive như trước) — bắt buộc để mỗi cột có chiều cao xác
+             định (h-full) và tự cuộn dọc RIÊNG bên trong (overflow-y-auto),
+             đúng yêu cầu "chỉ cuộn trong từng cột Kanban". Màn quá hẹp để
+             cả 5 cột vừa thì cuộn NGANG cả dải (overflow-x-auto), không vỡ
+             layout dọc theo cột thứ 6/7 như grid-wrap từng làm. */}
+          <div className="flex-1 min-w-0 h-full flex gap-3 overflow-x-auto pb-1">
           {STATUS.map((col) => (
             <div
               key={col.id}
               {...dropProps(col.id)}
-              className="rounded-xl border p-3 flex flex-col gap-2 transition-colors on-card"
+              className="h-full flex-1 min-w-[220px] rounded-xl border p-3 flex flex-col transition-colors on-card"
               style={{
                 background: C.card,
                 borderColor: overCol === col.id ? col.color : "var(--line)",
                 borderWidth: overCol === col.id ? "2px" : "1px",
-                minHeight: "320px",
               }}
             >
-              <div className="flex items-center gap-2 pb-2 border-b border-dashed" style={{ borderColor: "var(--line)" }}>
+              <div className="shrink-0 flex items-center gap-2 pb-2 border-b border-dashed" style={{ borderColor: "var(--line)" }}>
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ background: col.color }} />
                 <Micro className="truncate min-w-0 u-sub">{col.label}</Micro>
                 <span className="text-[14px] tabular-nums ml-auto shrink-0 u-faint">{byCol[col.id].length}</span>
               </div>
-              {byCol[col.id].length === 0 ? (
-                <p className="ff-display italic text-[17px] text-center my-auto u-faint">{t("dropHere")}</p>
-              ) : (
-                byCol[col.id].map((x) => (
-                  <TaskCard
-                    key={x.task.id}
-                    task={x.task}
-                    projectName={x.pname}
-                    dragPayload={{ pid: x.pid, tid: x.task.id }}
-                    accentColor={col.color}
-                    onDetails={() => onDetails(x)}
-                    showCheck
-                    onToggle={() => onSetStatus(x.pid, x.task.id, x.task.done ? "todo" : "done")}
-                  />
-                ))
-              )}
+              {/* Vùng cuộn dọc RIÊNG của cột — chỉ phần thẻ việc cuộn,
+                 tiêu đề cột luôn đứng yên phía trên. */}
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pt-2">
+                {byCol[col.id].length === 0 ? (
+                  <p className="ff-display italic text-[17px] text-center my-auto u-faint">{t("dropHere")}</p>
+                ) : (
+                  byCol[col.id].map((x) => (
+                    <TaskCard
+                      key={x.task.id}
+                      task={x.task}
+                      projectName={x.pname}
+                      dragPayload={{ pid: x.pid, tid: x.task.id }}
+                      accentColor={col.color}
+                      onDetails={() => onDetails(x)}
+                      showCheck
+                      onToggle={() => onSetStatus(x.pid, x.task.id, x.task.done ? "todo" : "done")}
+                    />
+                  ))
+                )}
+              </div>
             </div>
           ))}
           </div>
 
           {/* Cột tỉ lệ trạng thái — Donut quay lại đúng chỗ cũ */}
-          <aside className="w-full xl:w-56 shrink-0 rounded-xl border p-4 on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
+          <aside className="w-full xl:w-56 shrink-0 h-full overflow-y-auto rounded-xl border p-4 on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
             <Micro style={{ color: "var(--sub)" }}>{t("statusShare")}</Micro>
             <div className="mt-2"><Donut data={chart} centerLabel={t("tasksWord")} /></div>
             <div className="mt-3 flex flex-col gap-1">
@@ -1649,14 +1666,16 @@
       });
 
       return (
-        <div className="rounded-2xl border overflow-x-auto on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
+        <div className="h-full flex flex-col rounded-2xl border overflow-x-auto on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
           {/* Header và lưới giờ phải nằm CHUNG một khối cuộn dọc (overflow-y-auto)
               bên dưới. Trước đây header đứng ngoài, lưới giờ đứng trong — khi lưới
               đủ cao để tự sinh thanh cuộn dọc, thanh cuộn chiếm mất vài px bề rộng
               của riêng nó, nên 2 khối tính lại cột `1fr` trên hai bề rộng khác nhau
               và các cột ngày bị lệch dần sang phải. Header nằm cùng khối thì luôn
-              bị trừ bề rộng giống hệt lưới giờ, cột nào cũng khớp cột nấy. */}
-          <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: "62vh" }}>
+              bị trừ bề rộng giống hệt lưới giờ, cột nào cũng khớp cột nấy.
+              flex-1 min-h-0 thay vì maxHeight cố định 62vh: lưới giờ giờ CHIẾM
+              TRỌN chiều cao còn lại của khung app-shell, không phụ thuộc vh. */}
+          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
             <div className="grid sticky top-0 z-20 border-b" style={{ gridTemplateColumns: CANVAS_COLS, background: C.card, borderColor: "var(--line)" }}>
               <div />
               {DAYS.map((_, i) => {
@@ -2150,11 +2169,11 @@
 
       return (
         <Ctx.Provider value={ctxValue}>
-          {/* overflow-x hidden ở gốc: các khu tự cuộn ngang (Canvas, panel AI)
-              đều có overflow-x-auto RIÊNG lồng bên trong nên không bị ảnh
-              hưởng — chốt này chỉ chặn phần bị tràn ngoài ý muốn đẩy ra cả
-              trang, để cửa sổ hẹp không sinh thanh cuộn ngang toàn trang. */}
-          <div className="wp-root min-h-screen flex flex-col overflow-x-hidden" style={{ background: C.bg, color: "var(--ink)" }}>
+          {/* Khung app-shell: đúng bằng 100vh/100vw, overflow-hidden cả hai
+              trục — trang KHÔNG BAO GIỜ tự cuộn. Các khu tự cuộn (sidebar,
+              cột Kanban, lưới Canvas, panel AI) đều có overflow-y/x-auto
+              RIÊNG lồng bên trong, không bị ảnh hưởng bởi khoá này. */}
+          <div className="wp-root h-screen w-screen flex flex-col overflow-hidden" style={{ background: C.bg, color: "var(--ink)" }}>
             <style>{`
               /* Hai tầng bề mặt: .wp-root/.on-bg = chữ trên NỀN, .on-card = chữ trong Ô */
               .wp-root, .on-bg {
@@ -2174,7 +2193,7 @@
               @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
             `}</style>
 
-            <div className="max-w-[1600px] mx-auto w-full flex-1 flex flex-col">
+            <div className="max-w-[1600px] mx-auto w-full flex-1 min-h-0 flex flex-col">
               {/* ---------- HÀNG TRÊN CÙNG ----------------------------------------
                    Hai tầng, cùng nằm trên đường kẻ ngang cuối header:
                      tầng 1 — ngày tháng (trái) · LOGO (giữa) · nút (phải)
@@ -2185,7 +2204,7 @@
                    không bị đẩy lệch — cố định theo cấu trúc, không cần đo JS.
                    Màn hẹp (<sm) thì logo về hàng riêng, hai bên tự xuống dòng.
                    ------------------------------------------------------------------ */}
-              <header className="px-4 md:px-8 pt-2 pb-3 border-b" style={{ borderColor: "var(--line)" }}>
+              <header className="shrink-0 px-4 md:px-8 pt-2 pb-3 border-b" style={{ borderColor: "var(--line)" }}>
                 <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-4 gap-y-2">
                   <span className="flex-1 sm:basis-0 min-w-0 order-2 sm:order-1 flex justify-start">
                     <span className="ff-display text-[15px] sm:text-[17px] lg:text-[20px] leading-[1.25] u-ink">
@@ -2230,12 +2249,15 @@
               </header>
 
               {/* ---------- 3 khu vực ---------- */}
-              <div className="flex-1 flex flex-col lg:flex-row items-stretch gap-0 lg:gap-5 px-4 md:px-8 py-5">
-                {/* CỘT TRÁI — nhập liệu */}
+              <div className="flex-1 min-h-0 flex flex-col lg:flex-row items-stretch gap-0 lg:gap-5 px-4 md:px-8 py-5">
+                {/* CỘT TRÁI — nhập liệu. overflow-hidden ngoài dành riêng cho
+                    animation thu/mở bề rộng — cuộn dọc đặt ở khối BÊN TRONG
+                    (h-full overflow-y-auto) để không xung đột với animation. */}
                 <aside
                   className={"shrink-0 overflow-hidden transition-all duration-300 " + (leftOpen ? "w-full lg:w-[330px] mb-5 lg:mb-0" : "w-0 h-0 lg:h-auto")}
                   aria-hidden={!leftOpen}
                 >
+                  <div className="h-full overflow-y-auto">
                   <LeftSidebar
                     projects={projects}
                     inbox={inbox}
@@ -2252,17 +2274,28 @@
                     onUnassign={unassign}
                     onDetails={(x) => setTaskRef({ pid: x.pid, tid: x.task.id })}
                   />
+                  </div>
                 </aside>
 
-                {/* KHU GIỮA — workspace, không có ô nhập liệu nào */}
-                <main className="flex-1 min-w-0">
+                {/* KHU GIỮA — workspace, không có ô nhập liệu nào.
+                    flex-col + min-h-0: WorkspaceHeader (tab Kanban/Canvas...)
+                    cố định chiều cao (shrink-0), phần nội dung bên dưới
+                    flex-1 min-h-0 overflow-hidden để CHIẾM TRỌN không gian
+                    còn lại — cuộn thật sự chỉ xảy ra bên trong từng view
+                    (cột Kanban, lưới Canvas...), không phải ở khối này. */}
+                <main className="flex-1 min-w-0 min-h-0 flex flex-col">
                   {/* WorkspaceHeader vẽ ở MỌI trạng thái. Trước đây nó nằm trong
                       nhánh else của `projects.length === 0`, nên người dùng mới
                       chưa có dự án sẽ không thấy tab Kanban/Canvas/Stats/Archive
                       nào cả — tính năng có trong code mà không có đường vào. */}
-                  <WorkspaceHeader view={view} setView={setView} leftOpen={leftOpen} setLeftOpen={setLeftOpen} />
+                  <div className="shrink-0">
+                    <WorkspaceHeader view={view} setView={setView} leftOpen={leftOpen} setLeftOpen={setLeftOpen} />
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-hidden">
                   {isBlank && (view === "kanban" || view === "canvas") ? (
-                    <WelcomeCard greeting={greeting} onStart={() => { setLeftOpen(true); setAddingProject(true); }} />
+                    <div className="h-full overflow-y-auto">
+                      <WelcomeCard greeting={greeting} onStart={() => { setLeftOpen(true); setAddingProject(true); }} />
+                    </div>
                   ) : (
                     <>
                       {view === "kanban" && (
@@ -2283,10 +2316,19 @@
                           onOpen={(x) => setTaskRef({ pid: x.pid, tid: x.task.id, slotId: x.slot.slotId })}
                         />
                       )}
-                      {view === "stats" && <StatsView projects={projects} archive={archive} />}
-                      {view === "archive" && <ArchiveView archive={archive} onDelete={(id) => setArchive((prev) => prev.filter((w) => w.id !== id))} />}
+                      {view === "stats" && (
+                        <div className="h-full overflow-y-auto">
+                          <StatsView projects={projects} archive={archive} />
+                        </div>
+                      )}
+                      {view === "archive" && (
+                        <div className="h-full overflow-y-auto">
+                          <ArchiveView archive={archive} onDelete={(id) => setArchive((prev) => prev.filter((w) => w.id !== id))} />
+                        </div>
+                      )}
                     </>
                   )}
+                  </div>
                 </main>
 
                 {/* CỘT PHẢI — AI */}
@@ -2302,7 +2344,7 @@
               {/* cục pin — ngay dưới khu bảng, phía trên đường kẻ ngang của
                   footer. Đệm trên/dưới BẰNG NHAU (py-6) để nó nằm đúng giữa
                   khoảng cách từ chân bảng tới đường kẻ, không dính sát đáy. */}
-              <div className="flex justify-center px-4 md:px-8 py-6">
+              <div className="shrink-0 flex justify-center px-4 md:px-8 py-6">
                 <ProgressTank pct={pct} done={doneUnits} total={totalUnits} />
               </div>
 
@@ -2310,7 +2352,7 @@
               {/* Footer 3 cột trên máy để bàn. Màn hẹp bỏ lưới 3 cột (dồn
                   chữ đến vỡ) sang flex tự xuống dòng, điều hướng tuần đứng
                   trước vì đó là thứ hay bấm nhất. */}
-              <footer className="border-t px-4 md:px-8 py-3 flex flex-wrap sm:grid sm:grid-cols-3 items-center justify-center gap-x-4 gap-y-2" style={{ borderColor: "var(--line)" }}>
+              <footer className="shrink-0 border-t px-4 md:px-8 py-3 flex flex-wrap sm:grid sm:grid-cols-3 items-center justify-center gap-x-4 gap-y-2" style={{ borderColor: "var(--line)" }}>
                 <div className="flex justify-start items-center gap-4 order-2 sm:order-1">
                   <GhostBtn label={<span className="ml-1">{t("settings")}</span>} icon={<span>⚙</span>} active={settingsOpen} onClick={() => setSettingsOpen((v) => !v)} />
                 </div>
