@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5XZNVSTN3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E5XZNVSTN3');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ARVIS planner</title>
@@ -42,8 +50,9 @@
     }
     /* Tablet: cột hẹp lại để cả tuần vừa khung, đỡ phải cuộn ngang */
     @media (max-width: 1024px) { :root { --day-col: 112px; --hour-col: 50px; } }
-    /* Điện thoại: hẹp nhất còn đọc được; hẹp hơn nữa thì chữ giờ vỡ dòng */
-    @media (max-width: 640px)  { :root { --day-col: 84px;  --hour-col: 44px; } }
+    /* Điện thoại: hẹp nhất còn đọc được. --hour-col phải chứa trọn "00:00"
+       (~33px ở 12.5px) cộng khoảng thở hai bên, 44px làm chữ chạm sát mép. */
+    @media (max-width: 640px)  { :root { --day-col: 84px;  --hour-col: 54px; } }
     /* Mọi nhãn viết hoa trong app đều đi qua class `uppercase` của Tailwind.
        Tailwind chỉ đặt `text-transform` ở đó, nên gán font-family tại đây
        không xung đột và phủ được toàn bộ nhãn chỉ bằng một dòng. */
@@ -53,8 +62,10 @@
     /* Vạch 25% kiểu cục pin: nét ĐỨT (border-left dashed), không phải
        thanh liền — viền ngoài của bể mới là nét đậm, vạch này phải nhạt
        và mảnh hơn hẳn để rõ tôn ti: viền > vạch chia > số phần trăm. */
+    /* Chừa mép theo TỈ LỆ (14%) thay vì số px cố định — thanh pin thấp hơn
+       trên điện thoại, chốt 9px cứng làm vạch gần chạm viền trên/dưới. */
     .tank-divider {
-      position: absolute; top: 9px; bottom: 9px; width: 0;
+      position: absolute; top: 14%; bottom: 14%; width: 0;
       border-left: 2px dashed rgba(255, 255, 255, .6);
       pointer-events: none;
     }
@@ -82,14 +93,21 @@
     .line-clamp-1 { -webkit-line-clamp: 1; }
     .line-clamp-2 { -webkit-line-clamp: 2; }
     .line-clamp-3 { -webkit-line-clamp: 3; }
-    /* Khung ứng dụng CỐ ĐỊNH đúng viewport, không cho trang tự cuộn:
-       html/body chốt đúng 100vh/100vw, overflow:hidden chặn thanh cuộn
-       trình duyệt tuyệt đối. Cuộn chỉ còn xảy ra ở các khối con có khai
-       overflow-y-auto riêng (sidebar, panel Kanban, lưới Canvas...). */
+    /* MẶC ĐỊNH (điện thoại/tablet): trang cuộn BÌNH THƯỜNG.
+       Các khối xếp chồng dọc (hộp việc → bảng → pin → footer) không thể
+       nhồi vừa một màn hình cao 100vh — ép vào là khu bảng chỉ còn ~200px,
+       xem không nổi. Ngoài ra 100vh trên trình duyệt di động còn bị tính
+       sai vì thanh địa chỉ trượt ra/vào. */
     html, body {
-      height: 100vh; width: 100vw;
       margin: 0; padding: 0;
-      overflow: hidden;
+      width: 100%;
+      overflow-x: hidden;
+    }
+    /* CHỈ TỪ 1024px (máy tính): khoá khung đúng viewport, không cho trang
+       tự cuộn — cuộn chỉ xảy ra bên trong sidebar / cột Kanban / lưới
+       Canvas, mỗi khối có overflow-y-auto riêng. */
+    @media (min-width: 1024px) {
+      html, body { height: 100vh; overflow: hidden; }
     }
     body {
       font-family: var(--ff-body);
@@ -1349,19 +1367,19 @@
       });
 
       return (
-        <div className="h-full flex flex-col-reverse xl:flex-row gap-4 items-stretch">
-          {/* 5 cột nằm CÙNG MỘT HÀNG (không còn tự xuống dòng theo grid-cols
-             responsive như trước) — bắt buộc để mỗi cột có chiều cao xác
-             định (h-full) và tự cuộn dọc RIÊNG bên trong (overflow-y-auto),
-             đúng yêu cầu "chỉ cuộn trong từng cột Kanban". Màn quá hẹp để
-             cả 5 cột vừa thì cuộn NGANG cả dải (overflow-x-auto), không vỡ
-             layout dọc theo cột thứ 6/7 như grid-wrap từng làm. */}
-          <div className="flex-1 min-w-0 h-full flex gap-3 overflow-x-auto pb-1">
+        <div className="lg:h-full flex flex-col-reverse xl:flex-row gap-4 items-stretch">
+          {/* MÁY TÍNH (lg+): 5 cột nằm CÙNG MỘT HÀNG — bắt buộc để mỗi cột có
+             chiều cao xác định (h-full) và tự cuộn dọc RIÊNG bên trong, đúng
+             yêu cầu "chỉ cuộn trong từng cột Kanban"; hẹp quá thì cuộn NGANG
+             cả dải chứ không vỡ layout như grid-wrap từng làm.
+             ĐIỆN THOẠI: xếp chồng DỌC, cao tự nhiên, để cả trang cuộn — nhồi
+             5 cột ngang vào màn 375px thì cột nào cũng chỉ còn một mẩu. */}
+          <div className="flex-1 min-w-0 lg:h-full flex flex-col lg:flex-row gap-3 lg:overflow-x-auto pb-1">
           {STATUS.map((col) => (
             <div
               key={col.id}
               {...dropProps(col.id)}
-              className="h-full flex-1 min-w-[220px] rounded-xl border p-3 flex flex-col transition-colors on-card"
+              className="min-h-[220px] lg:min-h-0 lg:h-full lg:flex-1 lg:min-w-[220px] rounded-xl border p-3 flex flex-col transition-colors on-card"
               style={{
                 background: C.card,
                 borderColor: overCol === col.id ? col.color : "var(--line)",
@@ -1375,7 +1393,7 @@
               </div>
               {/* Vùng cuộn dọc RIÊNG của cột — chỉ phần thẻ việc cuộn,
                  tiêu đề cột luôn đứng yên phía trên. */}
-              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2 pt-2">
+              <div className="flex-1 lg:min-h-0 lg:overflow-y-auto flex flex-col gap-2 pt-2">
                 {byCol[col.id].length === 0 ? (
                   <p className="ff-display italic text-[17px] text-center my-auto u-faint">{t("dropHere")}</p>
                 ) : (
@@ -1398,7 +1416,7 @@
           </div>
 
           {/* Cột tỉ lệ trạng thái — Donut quay lại đúng chỗ cũ */}
-          <aside className="w-full xl:w-56 shrink-0 h-full overflow-y-auto rounded-xl border p-4 on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
+          <aside className="w-full xl:w-56 shrink-0 lg:h-full lg:overflow-y-auto rounded-xl border p-4 on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
             <Micro style={{ color: "var(--sub)" }}>{t("statusShare")}</Micro>
             <div className="mt-2"><Donut data={chart} centerLabel={t("tasksWord")} /></div>
             <div className="mt-3 flex flex-col gap-1">
@@ -1439,9 +1457,9 @@
          viền nhạt và mềm hơn mà vẫn giữ đúng tông accent của theme. */
       const borderTint = hexAlpha(C.accent, 0.55);
       return (
-        <div className="flex items-center h-16 w-full max-w-xl shrink-0" title={done + "/" + total}>
+        <div className="flex items-center h-12 sm:h-14 lg:h-16 w-full max-w-xl shrink-0" title={done + "/" + total}>
           <div
-            className="relative h-full flex-1 min-w-0 rounded-xl overflow-hidden border-[4px]"
+            className="relative h-full flex-1 min-w-0 rounded-lg lg:rounded-xl overflow-hidden border-[3px] lg:border-[4px]"
             style={{ background: "var(--accentSoft)", borderColor: borderTint }}
           >
             <div
@@ -1452,16 +1470,16 @@
               <span key={x} className="tank-divider" style={{ left: x + "%" }} />
             ))}
             <div className="absolute inset-0 flex items-center justify-center gap-2 pointer-events-none">
-              <span className={"ff-display text-[30px] leading-none tabular-nums " + (onFill ? "u-on-fill" : "")} style={onFill ? undefined : { color: "var(--ink)" }}>
+              <span className={"ff-display text-[22px] sm:text-[26px] lg:text-[30px] leading-none tabular-nums " + (onFill ? "u-on-fill" : "")} style={onFill ? undefined : { color: "var(--ink)" }}>
                 {pct}%
               </span>
-              <span className={"text-[16px] tabular-nums " + (onFill ? "u-on-fill" : "")} style={onFill ? undefined : { color: "var(--sub)" }}>
+              <span className={"text-[13px] sm:text-[15px] lg:text-[16px] tabular-nums " + (onFill ? "u-on-fill" : "")} style={onFill ? undefined : { color: "var(--sub)" }}>
                 {done}/{total}
               </span>
             </div>
           </div>
           {/* núm cực dương của pin — cùng độ mờ với viền cho đồng bộ */}
-          <div className="h-6 w-[10px] rounded-r-lg shrink-0" style={{ background: borderTint }} />
+          <div className="h-4 w-[8px] lg:h-6 lg:w-[10px] rounded-r-md lg:rounded-r-lg shrink-0" style={{ background: borderTint }} />
         </div>
       );
     }
@@ -1815,18 +1833,27 @@
       });
 
       return (
-        <div className="h-full flex flex-col rounded-2xl border overflow-x-auto on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
+        <div className="lg:h-full flex flex-col rounded-2xl border overflow-x-auto on-card" style={{ background: C.card, borderColor: "var(--line)" }}>
           {/* Header và lưới giờ phải nằm CHUNG một khối cuộn dọc (overflow-y-auto)
               bên dưới. Trước đây header đứng ngoài, lưới giờ đứng trong — khi lưới
               đủ cao để tự sinh thanh cuộn dọc, thanh cuộn chiếm mất vài px bề rộng
               của riêng nó, nên 2 khối tính lại cột `1fr` trên hai bề rộng khác nhau
               và các cột ngày bị lệch dần sang phải. Header nằm cùng khối thì luôn
               bị trừ bề rộng giống hệt lưới giờ, cột nào cũng khớp cột nấy.
-              flex-1 min-h-0 thay vì maxHeight cố định 62vh: lưới giờ giờ CHIẾM
-              TRỌN chiều cao còn lại của khung app-shell, không phụ thuộc vh. */}
-          <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
-            <div className="grid sticky top-0 z-20 border-b" style={{ gridTemplateColumns: CANVAS_COLS, background: C.card, borderColor: "var(--line)" }}>
-              <div />
+              MÁY TÍNH: flex-1 min-h-0 để lưới chiếm trọn chiều cao còn lại của
+              khung app-shell. ĐIỆN THOẠI: khung không bị khoá 100vh nên phải
+              tự chốt maxHeight 62vh, không thì lưới 24 giờ dài ~1100px đẩy
+              footer văng khỏi tầm với. */}
+          <div ref={scrollRef} className="overflow-y-auto max-h-[62vh] lg:max-h-none lg:flex-1 lg:min-h-0">
+            {/* min-w-max: lưới phải rộng đúng bằng nội dung (642px) thay vì bị
+                bó theo khung 342px — vùng "được phép ghim" của cột giờ chính
+                là bề rộng lưới này, bó hẹp thì ghim hụt ~12px cuối khi cuộn
+                sang phải hết cỡ. Trên máy tính lưới vẫn giãn đầy như cũ. */}
+            <div className="grid min-w-max sticky top-0 z-20 border-b" style={{ gridTemplateColumns: CANVAS_COLS, background: C.card, borderColor: "var(--line)" }}>
+              {/* Ô góc: ghim cả hai chiều nên luôn che đúng giao điểm giữa
+                  hàng thứ (sticky top) và cột giờ (sticky left). z cao nhất
+                  để không bị nhãn giờ trượt qua bên dưới nó. */}
+              <div className="sticky left-0 z-30" style={{ background: C.card }} />
               {DAYS.map((_, i) => {
                 const isToday = i === todayIdx;
                 return (
@@ -1851,8 +1878,11 @@
                 đúng vạch kẻ đầu tiên, không có đệm thì vọt ra ngoài rìa
                 trên và bị cắt. Đệm áp cho CẢ khối (cột giờ lẫn 7 cột ngày)
                 nên vạch kẻ giờ trong từng cột ngày vẫn khớp đúng nhãn. */}
-            <div className="grid relative" style={{ gridTemplateColumns: CANVAS_COLS, paddingTop: "8px" }}>
-              <div className="relative" style={{ height: HOURS.length * ROW_H + "px" }}>
+            <div className="grid min-w-max relative" style={{ gridTemplateColumns: CANVAS_COLS, paddingTop: "8px" }}>
+              {/* Cột giờ GHIM TRÁI: màn hẹp không đủ chỗ cho cả 7 ngày nên
+                  phải cuộn ngang — không ghim thì cột giờ trôi mất, xem T6/CN
+                  là không còn biết khối việc rơi vào giờ nào. */}
+              <div className="relative sticky left-0 z-10" style={{ height: HOURS.length * ROW_H + "px", background: C.card }}>
                 {HOURS.map((h, idx) => (
                   <div key={h} className="absolute right-2 text-[12.5px] tabular-nums" style={{ top: idx * ROW_H - 7 + "px", color: "var(--faint)" }}>
                     {String(h).padStart(2, "0")}:00
@@ -1984,10 +2014,11 @@
             ))}
           </div>
 
-          {/* nút nổi cho màn hình nhỏ */}
+          {/* Nút nổi cho màn hình nhỏ. bottom-4: nằm sát đáy màn hình thay vì
+              lơ lửng giữa nội dung — ở bottom-20 nó đè đúng lên thanh pin. */}
           <button
             onClick={() => setOpen(true)}
-            className="md:hidden fixed bottom-20 right-4 z-40 flex items-center justify-center w-12 h-12 rounded-full shadow-lg text-[22px]"
+            className="md:hidden fixed bottom-4 right-4 z-40 flex items-center justify-center w-12 h-12 rounded-full shadow-lg text-[22px]"
             style={{ background: "var(--accentFill)", color: "var(--accentInk)" }}
             title={t("openAi")}
           >
@@ -2323,7 +2354,7 @@
               trục — trang KHÔNG BAO GIỜ tự cuộn. Các khu tự cuộn (sidebar,
               cột Kanban, lưới Canvas, panel AI) đều có overflow-y/x-auto
               RIÊNG lồng bên trong, không bị ảnh hưởng bởi khoá này. */}
-          <div className="wp-root h-screen w-screen flex flex-col overflow-hidden" style={{ background: C.bg, color: "var(--ink)" }}>
+          <div className="wp-root min-h-screen w-full flex flex-col lg:h-screen lg:overflow-hidden" style={{ background: C.bg, color: "var(--ink)" }}>
             <style>{`
               /* Hai tầng bề mặt: .wp-root/.on-bg = chữ trên NỀN, .on-card = chữ trong Ô */
               .wp-root, .on-bg {
@@ -2343,7 +2374,7 @@
               @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
             `}</style>
 
-            <div className="max-w-[1600px] mx-auto w-full flex-1 min-h-0 flex flex-col">
+            <div className="max-w-[1600px] mx-auto w-full flex-1 lg:min-h-0 flex flex-col">
               {/* ---------- HÀNG TRÊN CÙNG ----------------------------------------
                    Hai tầng, cùng nằm trên đường kẻ ngang cuối header:
                      tầng 1 — ngày tháng (trái) · LOGO (giữa) · nút (phải)
@@ -2356,7 +2387,10 @@
                    ------------------------------------------------------------------ */}
               <header className="shrink-0 px-4 md:px-8 pt-2 pb-3 border-b" style={{ borderColor: "var(--line)" }}>
                 <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-4 gap-y-2">
-                  <span className="flex-1 sm:basis-0 min-w-0 order-2 sm:order-1 flex justify-start">
+                  {/* Dưới sm: chiếm trọn một dòng riêng, căn giữa — để chung
+                      dòng với 2 nút thì "Chủ Nhật, 16 tháng 8" + CHỐT TUẦN +
+                      ĐĂNG KÝ ~350px không vừa màn 375px và đâm vào nhau. */}
+                  <span className="w-full sm:w-auto sm:flex-1 sm:basis-0 min-w-0 order-2 sm:order-1 flex justify-center sm:justify-start">
                     <span className="ff-display text-[15px] sm:text-[17px] lg:text-[20px] leading-[1.25] u-ink">
                       {todayLabel(lang)}
                     </span>
@@ -2373,7 +2407,7 @@
                     <span className="block w-[5px] h-[5px] lg:w-[7px] lg:h-[7px] rounded-full mb-[4px] lg:mb-[5px]" style={{ background: "var(--accent)" }} />
                   </button>
 
-                  <span className="flex-1 sm:basis-0 min-w-0 order-3 flex items-center justify-end gap-2 sm:gap-4">
+                  <span className="w-full sm:w-auto sm:flex-1 sm:basis-0 min-w-0 order-3 flex items-center justify-center sm:justify-end gap-3 sm:gap-4">
                     {confirmEnd ? (
                       <span className="flex items-center gap-2">
                         <button onClick={endWeek} className="flex items-center gap-1 rounded-full px-3 py-1 u-label whitespace-nowrap" style={{ background: "var(--accentFill)", color: "var(--accentInk)" }}>
@@ -2399,7 +2433,7 @@
               </header>
 
               {/* ---------- 3 khu vực ---------- */}
-              <div className="flex-1 min-h-0 flex flex-col lg:flex-row items-stretch gap-0 lg:gap-5 px-4 md:px-8 py-5">
+              <div className="flex-1 lg:min-h-0 flex flex-col lg:flex-row items-stretch gap-0 lg:gap-5 px-4 md:px-8 py-5">
                 {/* CỘT TRÁI — nhập liệu. overflow-hidden ngoài dành riêng cho
                     animation thu/mở bề rộng — cuộn dọc đặt ở khối BÊN TRONG
                     (h-full overflow-y-auto) để không xung đột với animation. */}
@@ -2407,7 +2441,7 @@
                   className={"shrink-0 overflow-hidden transition-all duration-300 " + (leftOpen ? "w-full lg:w-[330px] mb-5 lg:mb-0" : "w-0 h-0 lg:h-auto")}
                   aria-hidden={!leftOpen}
                 >
-                  <div className="h-full overflow-y-auto">
+                  <div className="lg:h-full lg:overflow-y-auto">
                   <LeftSidebar
                     projects={projects}
                     inbox={inbox}
@@ -2433,7 +2467,7 @@
                     flex-1 min-h-0 overflow-hidden để CHIẾM TRỌN không gian
                     còn lại — cuộn thật sự chỉ xảy ra bên trong từng view
                     (cột Kanban, lưới Canvas...), không phải ở khối này. */}
-                <main className="flex-1 min-w-0 min-h-0 flex flex-col">
+                <main className="flex-1 min-w-0 lg:min-h-0 flex flex-col">
                   {/* WorkspaceHeader vẽ ở MỌI trạng thái. Trước đây nó nằm trong
                       nhánh else của `projects.length === 0`, nên người dùng mới
                       chưa có dự án sẽ không thấy tab Kanban/Canvas/Stats/Archive
@@ -2441,9 +2475,9 @@
                   <div className="shrink-0">
                     <WorkspaceHeader view={view} setView={setView} leftOpen={leftOpen} setLeftOpen={setLeftOpen} />
                   </div>
-                  <div className="flex-1 min-h-0 overflow-hidden">
+                  <div className="lg:flex-1 lg:min-h-0 lg:overflow-hidden">
                   {isBlank && (view === "kanban" || view === "canvas") ? (
-                    <div className="h-full overflow-y-auto">
+                    <div className="lg:h-full lg:overflow-y-auto">
                       <WelcomeCard greeting={greeting} onStart={() => { setLeftOpen(true); setAddingProject(true); }} />
                     </div>
                   ) : (
@@ -2467,12 +2501,12 @@
                         />
                       )}
                       {view === "stats" && (
-                        <div className="h-full overflow-y-auto">
+                        <div className="lg:h-full lg:overflow-y-auto">
                           <StatsView projects={projects} archive={archive} />
                         </div>
                       )}
                       {view === "archive" && (
-                        <div className="h-full overflow-y-auto">
+                        <div className="lg:h-full lg:overflow-y-auto">
                           <ArchiveView archive={archive} onDelete={(id) => setArchive((prev) => prev.filter((w) => w.id !== id))} />
                         </div>
                       )}
