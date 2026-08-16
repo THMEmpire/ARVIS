@@ -136,12 +136,19 @@
     const BUILD = "v24 · 06-08";
     const QR_IMAGE_URL = ""; // vd: "https://.../vietqr.png" hoặc "data:image/png;base64,..."
     /* Trang này là file tĩnh, không có server, nên không thể tự động gửi
-       mail "im lặng" — chỉ mailto: là làm được mà không cần đăng ký dịch
-       vụ ngoài. Bấm nút sẽ mở sẵn ứng dụng mail của NGƯỜI TRUY CẬP với
-       nội dung điền sẵn tới địa chỉ dưới đây; họ vẫn phải tự bấm Gửi. */
+       mail "im lặng" — chỉ mở sẵn một khung soạn thư là làm được mà không
+       cần đăng ký dịch vụ ngoài. Người truy cập vẫn phải tự bấm Gửi.
+       `mailto:` là giao thức cấp HỆ ĐIỀU HÀNH — máy mở app nào đang đặt
+       mặc định (thường là Outlook trên Windows), không biết người dùng
+       quen Gmail web hay không. Nên ưu tiên link soạn thư riêng của Gmail
+       (mở thẳng trên web, tab mới, không mất trang planner đang xem), và
+       giữ mailto: làm lối dự phòng cho ai không dùng Gmail. */
     const CONTACT_EMAIL = "nhatnam30189@gmail.com";
     const mailtoLink = (subject, body) =>
       "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    const gmailComposeLink = (subject, body) =>
+      "https://mail.google.com/mail/?view=cm&fs=1&to=" + encodeURIComponent(CONTACT_EMAIL) +
+      "&su=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
 
     const THEMES = [
       { id: "cherry", name: "Cherry Bliss",
@@ -289,7 +296,7 @@
         emailPh: "you@email.com", send: "Send",
         feedbackT: "Got feedback?", feedbackPh: "Tell us what’s working, what’s not…",
         feedbackEmailPh: "Your email (optional, so we can reply)", sendFeedback: "Send feedback",
-        mailtoNote: "Opens your own mail app with the message pre-filled — just hit Send there.",
+        otherMailApp: "…or send with another mail app",
         mailSignupSubject: "ARVIS — new signup",
         mailSignupBody: "Signup email: ",
         mailFeedbackSubject: "ARVIS — feedback",
@@ -354,7 +361,7 @@
         emailPh: "ban@email.com", send: "Gửi",
         feedbackT: "Có góp ý gì không?", feedbackPh: "Điều gì đang ổn, điều gì chưa ổn…",
         feedbackEmailPh: "Email của bạn (không bắt buộc, để mình phản hồi)", sendFeedback: "Gửi góp ý",
-        mailtoNote: "Sẽ mở sẵn ứng dụng mail của bạn với nội dung điền sẵn — bạn chỉ cần bấm Gửi ở đó.",
+        otherMailApp: "…hoặc gửi bằng ứng dụng mail khác",
         mailSignupSubject: "ARVIS — đăng ký mới",
         mailSignupBody: "Email đăng ký: ",
         mailFeedbackSubject: "ARVIS — góp ý",
@@ -806,19 +813,27 @@
 
       const emailOk = EMAIL_RE.test(email.trim());
 
-      const submitSignup = () => {
+      /* viaGmail=true → mở khung soạn thư Gmail web ở TAB MỚI (không mất
+         trang planner). false → mailto: dự phòng cho ai không dùng Gmail,
+         mở trong chính tab hiện tại là bình thường vì trình duyệt giao
+         việc đó cho hệ điều hành, không thực sự điều hướng khỏi trang. */
+      const submitSignup = (viaGmail) => {
         if (!emailOk) { showToast(t("invalidEmail")); return; }
-        window.location.href = mailtoLink(t("mailSignupSubject"), t("mailSignupBody") + email.trim());
+        const subject = t("mailSignupSubject"), body = t("mailSignupBody") + email.trim();
+        if (viaGmail) window.open(gmailComposeLink(subject, body), "_blank");
+        else window.location.href = mailtoLink(subject, body);
         setEmail("");
         showToast(t("tSignupSent"));
         onClose();
       };
 
-      const submitFeedback = () => {
+      const submitFeedback = (viaGmail) => {
         const text = fbText.trim();
         if (!text) return;
+        const subject = t("mailFeedbackSubject");
         const body = text + (fbEmail.trim() ? "\n\n" + t("mailFeedbackReply") + fbEmail.trim() : "");
-        window.location.href = mailtoLink(t("mailFeedbackSubject"), body);
+        if (viaGmail) window.open(gmailComposeLink(subject, body), "_blank");
+        else window.location.href = mailtoLink(subject, body);
         setFbText(""); setFbEmail("");
         showToast(t("tFeedbackSent"));
         onClose();
@@ -843,19 +858,22 @@
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") submitSignup(); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") submitSignup(true); }}
                   placeholder={t("emailPh")}
                   className="flex-1 min-w-0 rounded-lg border px-2 py-1.5 text-[15px] bg-transparent"
                   style={{ borderColor: "var(--line)", color: "var(--ink)" }}
                 />
                 <button
-                  onClick={submitSignup}
+                  onClick={() => submitSignup(true)}
                   className="shrink-0 rounded-lg px-3 py-1.5 u-label transition-opacity"
                   style={{ background: "var(--accentFill)", color: "var(--accentInk)", opacity: emailOk ? 1 : 0.5 }}
                 >
                   {t("send")}
                 </button>
               </div>
+              <button onClick={() => submitSignup(false)} className="mt-1.5 text-[12.5px] underline underline-offset-2 u-faint">
+                {t("otherMailApp")}
+              </button>
             </div>
 
             <div className="border-t border-dashed pt-4" style={{ borderColor: "var(--dash)" }}>
@@ -877,15 +895,16 @@
                 style={{ borderColor: "var(--line)", color: "var(--ink)" }}
               />
               <button
-                onClick={submitFeedback}
+                onClick={() => submitFeedback(true)}
                 className="w-full mt-2 rounded-lg px-3 py-1.5 u-label transition-opacity"
                 style={{ background: "var(--accentFill)", color: "var(--accentInk)", opacity: fbText.trim() ? 1 : 0.5 }}
               >
                 {t("sendFeedback")}
               </button>
+              <button onClick={() => submitFeedback(false)} className="mt-1.5 text-[12.5px] underline underline-offset-2 u-faint">
+                {t("otherMailApp")}
+              </button>
             </div>
-
-            <p className="text-[12.5px] u-faint">{t("mailtoNote")}</p>
           </div>
         </>
       );
