@@ -130,10 +130,18 @@
        1. THEMES: thêm theme mới = thêm 1 object (9 mã màu).
        2. QR_IMAGE_URL: dán link/base64 ảnh QR thật của bạn.
        3. AI_MODULES: registry cho hub + rail AI Tools.
+       4. CONTACT_EMAIL: nơi nhận đăng ký + góp ý từ nút "Đăng ký".
        ============================================================ */
 
     const BUILD = "v24 · 06-08";
     const QR_IMAGE_URL = ""; // vd: "https://.../vietqr.png" hoặc "data:image/png;base64,..."
+    /* Trang này là file tĩnh, không có server, nên không thể tự động gửi
+       mail "im lặng" — chỉ mailto: là làm được mà không cần đăng ký dịch
+       vụ ngoài. Bấm nút sẽ mở sẵn ứng dụng mail của NGƯỜI TRUY CẬP với
+       nội dung điền sẵn tới địa chỉ dưới đây; họ vẫn phải tự bấm Gửi. */
+    const CONTACT_EMAIL = "nhatnam30189@gmail.com";
+    const mailtoLink = (subject, body) =>
+      "mailto:" + CONTACT_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
 
     const THEMES = [
       { id: "cherry", name: "Cherry Bliss",
@@ -256,7 +264,6 @@
         tCopied: "Plan copied. Paste it into any week.", tPasted: "Plan pasted below your projects.",
         tNoCopy: "Nothing to copy — make a project first.", tNoPaste: "Nothing to paste — copy a plan first.",
         tArchived: "Week archived. Fresh start!", tNoArchive: "Nothing to archive yet.",
-        tSignup: "Accounts come later — your data stays on this device.",
         tToolTgl: "Demo toggle — hook purchases up here later.",
         tModule: "Placeholder — wire this API up later.",
         kanbanTab: "Kanban", canvasTab: "Canvas",
@@ -278,6 +285,18 @@
         slotOf: "Block on", slotsL: "Blocks on the timetable", noSlots: "Not on the timetable yet.",
         addSlot: "Put on a day", deleteSlot: "Remove this block", taskWide: "Applies to the whole task",
         slotWide: "Applies to this block only",
+        signupHint: "Leave your email and we’ll keep you posted.",
+        emailPh: "you@email.com", send: "Send",
+        feedbackT: "Got feedback?", feedbackPh: "Tell us what’s working, what’s not…",
+        feedbackEmailPh: "Your email (optional, so we can reply)", sendFeedback: "Send feedback",
+        mailtoNote: "Opens your own mail app with the message pre-filled — just hit Send there.",
+        mailSignupSubject: "ARVIS — new signup",
+        mailSignupBody: "Signup email: ",
+        mailFeedbackSubject: "ARVIS — feedback",
+        mailFeedbackReply: "Reply to: ",
+        tSignupSent: "Mail app opened — hit Send there to finish signing up.",
+        tFeedbackSent: "Mail app opened — hit Send there to finish sending feedback.",
+        invalidEmail: "That doesn’t look like a valid email.",
       },
       vi: {
         kanban: "Kanban", ai: "Trợ lý AI", signup: "Đăng ký",
@@ -310,7 +329,6 @@
         tCopied: "Đã sao chép kế hoạch. Bạn có thể dán vào bất kỳ tuần nào.", tPasted: "Đã dán kế hoạch ngay bên dưới dự án của bạn.",
         tNoCopy: "Chưa có gì để sao chép — hãy tạo dự án trước.", tNoPaste: "Chưa có gì để dán — hãy sao chép một kế hoạch trước.",
         tArchived: "Đã lưu trữ tuần cũ. Sẵn sàng cho một tuần mới!", tNoArchive: "Chưa có gì để lưu trữ.",
-        tSignup: "Tính năng tài khoản sẽ có sau — hiện tại dữ liệu được lưu an toàn trên máy bạn.",
         tToolTgl: "Đây chỉ là nút demo — sau này sẽ liên kết với thanh toán.",
         tModule: "Mô-đun đang chờ xử lý — sẽ hoạt động ngay khi kết nối API.",
         kanbanTab: "Kanban", canvasTab: "Canvas",
@@ -331,7 +349,19 @@
         colorLabels: "Nhãn màu", colorLabelsHint: "Đặt tên cho từng màu sắc theo ý muốn của bạn.",
         slotOf: "Khung giờ", slotsL: "Các khung giờ trên lịch", noSlots: "Chưa được xếp vào lịch.",
         addSlot: "Thêm vào ngày", deleteSlot: "Xóa khung giờ này", taskWide: "Áp dụng toàn bộ",
-        slotWide: "Chỉ áp dụng khung giờ này"
+        slotWide: "Chỉ áp dụng khung giờ này",
+        signupHint: "Để lại email, có tin gì mới mình báo bạn nhé.",
+        emailPh: "ban@email.com", send: "Gửi",
+        feedbackT: "Có góp ý gì không?", feedbackPh: "Điều gì đang ổn, điều gì chưa ổn…",
+        feedbackEmailPh: "Email của bạn (không bắt buộc, để mình phản hồi)", sendFeedback: "Gửi góp ý",
+        mailtoNote: "Sẽ mở sẵn ứng dụng mail của bạn với nội dung điền sẵn — bạn chỉ cần bấm Gửi ở đó.",
+        mailSignupSubject: "ARVIS — đăng ký mới",
+        mailSignupBody: "Email đăng ký: ",
+        mailFeedbackSubject: "ARVIS — góp ý",
+        mailFeedbackReply: "Phản hồi tới: ",
+        tSignupSent: "Đã mở ứng dụng mail — bấm Gửi ở đó để hoàn tất đăng ký.",
+        tFeedbackSent: "Đã mở ứng dụng mail — bấm Gửi ở đó để hoàn tất gửi góp ý.",
+        invalidEmail: "Email này chưa đúng định dạng.",
       },
     };
 
@@ -758,6 +788,106 @@
           </div>
           <p className="text-[15px] text-center u-sub">{t("donateD")}</p>
         </div>
+      );
+    }
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    /* Đăng ký nhận tin + góp ý, gộp chung một popover vì cùng đi tới
+       CONTACT_EMAIL. Không có backend nên "gửi" ở đây nghĩa là mở sẵn
+       ứng dụng mail của người dùng qua mailto: — xem giải thích ở
+       CONTACT_EMAIL đầu file. */
+    function ContactPopover({ open, onClose, showToast }) {
+      const { C, t } = useApp();
+      const [email, setEmail] = useState("");
+      const [fbText, setFbText] = useState("");
+      const [fbEmail, setFbEmail] = useState("");
+      if (!open) return null;
+
+      const emailOk = EMAIL_RE.test(email.trim());
+
+      const submitSignup = () => {
+        if (!emailOk) { showToast(t("invalidEmail")); return; }
+        window.location.href = mailtoLink(t("mailSignupSubject"), t("mailSignupBody") + email.trim());
+        setEmail("");
+        showToast(t("tSignupSent"));
+        onClose();
+      };
+
+      const submitFeedback = () => {
+        const text = fbText.trim();
+        if (!text) return;
+        const body = text + (fbEmail.trim() ? "\n\n" + t("mailFeedbackReply") + fbEmail.trim() : "");
+        window.location.href = mailtoLink(t("mailFeedbackSubject"), body);
+        setFbText(""); setFbEmail("");
+        showToast(t("tFeedbackSent"));
+        onClose();
+      };
+
+      return (
+        <>
+          <div className="fixed inset-0 z-40" onClick={onClose} />
+          <div
+            className="fixed bottom-16 right-4 md:right-8 z-50 w-80 max-h-[80vh] overflow-y-auto rounded-2xl border p-5 flex flex-col gap-5 on-card shadow-lg"
+            style={{ background: C.card, borderColor: "var(--line)" }}
+          >
+            <div className="flex items-center">
+              <Micro style={{ color: "var(--sub)" }}>{t("signup")}</Micro>
+              <button className="ml-auto p-1" onClick={onClose} style={{ color: "var(--faint)" }}><Icons.X width={16} height={16} /></button>
+            </div>
+
+            <div>
+              <p className="text-[15px] u-sub">{t("signupHint")}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") submitSignup(); }}
+                  placeholder={t("emailPh")}
+                  className="flex-1 min-w-0 rounded-lg border px-2 py-1.5 text-[15px] bg-transparent"
+                  style={{ borderColor: "var(--line)", color: "var(--ink)" }}
+                />
+                <button
+                  onClick={submitSignup}
+                  className="shrink-0 rounded-lg px-3 py-1.5 u-label transition-opacity"
+                  style={{ background: "var(--accentFill)", color: "var(--accentInk)", opacity: emailOk ? 1 : 0.5 }}
+                >
+                  {t("send")}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-dashed pt-4" style={{ borderColor: "var(--dash)" }}>
+              <span className="text-[16px] font-medium u-ink">{t("feedbackT")}</span>
+              <textarea
+                value={fbText}
+                onChange={(e) => setFbText(e.target.value)}
+                placeholder={t("feedbackPh")}
+                rows={3}
+                className="w-full mt-2 rounded-lg border px-2 py-1.5 text-[15px] bg-transparent resize-none"
+                style={{ borderColor: "var(--line)", color: "var(--ink)" }}
+              />
+              <input
+                type="email"
+                value={fbEmail}
+                onChange={(e) => setFbEmail(e.target.value)}
+                placeholder={t("feedbackEmailPh")}
+                className="w-full mt-2 rounded-lg border px-2 py-1.5 text-[15px] bg-transparent"
+                style={{ borderColor: "var(--line)", color: "var(--ink)" }}
+              />
+              <button
+                onClick={submitFeedback}
+                className="w-full mt-2 rounded-lg px-3 py-1.5 u-label transition-opacity"
+                style={{ background: "var(--accentFill)", color: "var(--accentInk)", opacity: fbText.trim() ? 1 : 0.5 }}
+              >
+                {t("sendFeedback")}
+              </button>
+            </div>
+
+            <p className="text-[12.5px] u-faint">{t("mailtoNote")}</p>
+          </div>
+        </>
       );
     }
 
@@ -1920,6 +2050,7 @@
       const [confirmEnd, setConfirmEnd] = useState(false);
       const [settingsOpen, setSettingsOpen] = useState(false);
       const [showQr, setShowQr] = useState(false);
+      const [contactOpen, setContactOpen] = useState(false);
       const [toast, setToast] = useState(null);
       const [taskRef, setTaskRef] = useState(null);     // { pid, tid, slotId? } — modal chi tiết
       const [colorLabels, setColorLabels] = useState(() => defaultColorLabels("vi"));
@@ -2238,9 +2369,9 @@
                     )}
 
                     <button
-                      onClick={() => showToast(t("tSignup"))}
+                      onClick={() => setContactOpen((v) => !v)}
                       className="rounded-full border px-3 py-1 u-label transition-colors whitespace-nowrap"
-                      style={{ borderColor: "var(--line)", color: "var(--sub)" }}
+                      style={{ borderColor: "var(--line)", color: contactOpen ? "var(--accent)" : "var(--sub)" }}
                     >
                       {t("signup")}
                     </button>
@@ -2398,6 +2529,7 @@
               colorLabels={colorLabels} setColorLabels={setColorLabels}
             />
             <QrPopup show={showQr} onClose={() => setShowQr(false)} />
+            <ContactPopover open={contactOpen} onClose={() => setContactOpen(false)} showToast={showToast} />
 
             <TaskModal
               entry={taskEntry}
